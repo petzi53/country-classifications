@@ -3,7 +3,7 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-ADD STATUS OF THIS PROJECT IN PERCENT
+XXX: ADD STATUS OF THIS PROJECT IN PERCENT
 
 
 :::
@@ -34,10 +34,9 @@ course my own responsibility.
 ## Content and Goals of this Book {.unnumbered}
 
 This Quarto book collects my personal notes, trials and exercises of
-[BOOK NAME](URL) by
-NAME OF AUTHOR [CITATION].
+[BOOK NAME](URL) by XXX: NAME OF AUTHOR [CITATION].
 
-DESCRIPTION OF THE BOOK AND WHY IT IS WORTH FOR A QUARTO BOOK
+XXX: DESCRIPTION OF THE BOOK AND WHY IT IS WORTH FOR A QUARTO BOOK
 
 
 
@@ -55,7 +54,7 @@ My text consists mostly of quotes from the [BOOK NAME].
 :::
 
 ::: my-example-container
-EXAMPLE QUOTE
+XXX: EXAMPLE QUOTE
 :::
 :::
 
@@ -141,7 +140,7 @@ an window with the appropriate glossary text. Try this example: `r glossary("Z-S
 
 ::: my-watch-out
 ::: my-watch-out-header
-WATCH OUT! Glossary text not authorized by the author of SWR
+WATCH OUT! Glossary is my private learning vehicle
 :::
 
 ::: my-watch-out-container
@@ -158,8 +157,7 @@ still to provide a key what this short references mean.
 :::
 :::
 
-If you fork the [repository of this quarto
-book](https://github.com/petzi53/swr-harris) then the glossary will not
+If you fork the [XXX: REPO OF THIS BOOK(URL OF THIS BOOK) then the glossary will not
 work out of the box. Load down the `glossary.yml` file from [my
 glossary-pb GitHub
 repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
@@ -172,7 +170,7 @@ text passage.
 
 ## R Code and Datasets
 
-EXPLAIN AND REWRITE DATA USAGE
+XXX: EXPLAIN AND REWRITE DATA USAGE
 
 I am using the package name also for the default installation of base R.
 This wouldn't be necessary but it helps me to understand where the base
@@ -212,7 +210,7 @@ When it is clear then I will follow the advice from Hadley Wickham:
 
 ::: {.my-resource-container}
 
-ADD HERE YOUR SOURCES
+XXX: ADD HERE YOUR SOURCES
 :::
 :::
 
@@ -252,6 +250,10 @@ There is a lot of necessary jargon to learn for coding. The goal of glossary is 
 ***
 ::::
 :::::
+
+## Private Functions
+
+XXX: DESCRIBE PRIVATE FUNCTION USED IN THIS BOOK
 
 ## Glossary
 

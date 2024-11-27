@@ -1,4 +1,17 @@
-###### Tempalte file from GitHub 
+#########################################################
+## My additions
+
+# Quarto renderings
+/.quarto/
+
+# template files (chapter, empty file for citations)
+_templates
+
+# archive (temporary files, maybe for later use)
+_archive
+
+
+###### Tempalte file from GitHub
 ###### https://github.com/github/gitignore/blob/main/R.gitignore
 # History files
 .Rhistory
@@ -49,17 +62,4 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
-
-######################################################### 
-## My additions
-
-# Quarto renderings
-/.quarto/
-
-# template files (chapter, empty file for citations)
-_templates
-
-# archive (temporary files, maybe for later use)
-_archive
-
 
