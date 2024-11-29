@@ -17,12 +17,14 @@ Chapter section list
 :::
 
 ::: my-objectives-container
-1. Locate the file for the UN M49 geoscheme classification data, get it and save it as raw data (@sec-download-m49).
-2. Inspect the data thoroughly (@sec-inspect-m49-raw).
-3. Clean the data (first step) (@sec-clean-data-1).
-4. Display the grouping results (@sec-display-result-1).
-5. Clean the intermediate region to get the official results (@sec-clean-data-2).
-6. Display the new intermediate region group (@sec-display-result-2).
+1.  Locate the file for the UN M49 geoscheme classification data, get it
+    and save it as raw data (@sec-download-m49).
+2.  Inspect the data thoroughly (@sec-inspect-m49-raw).
+3.  Clean the data (first step) (@sec-clean-data-1).
+4.  Display the grouping results (@sec-display-result-1).
+5.  Clean the intermediate region to get the official results
+    (@sec-clean-data-2).
+6.  Display the new intermediate region group (@sec-display-result-2).
 :::
 :::::
 ::::::
@@ -40,14 +42,14 @@ downloaded manually in different languages and formats (Copy into the
 clipboard, Excel or CSV) from the [United Nations Methodology Overview
 page](https://unstats.un.org/unsd/methodology/m49/overview/).
 
-::::::: my-resource
+:::::: my-resource
 :::: my-resource-header
 ::: {#lem-unsd.m49}
 : United Nations Statistics Division M49 Classification
 :::
 ::::
 
-:::: my-resource-container
+::: my-resource-container
 -   [Manual
     download](https://unstats.un.org/unsd/methodology/m49/overview/):
     The standard country or area codes for statistical use (M49) is
@@ -69,9 +71,8 @@ The `r glossary("OMNIKA")` URLs for download are:
     [2022-09-24\_\_Excel_UNSD_M49.xlsx](https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__Excel_UNSD_M49.xlsx)
 -   **CSV**:
     [2022-09-24\_\_CSV_UNSD_M49.csv](https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv)
-
-::::
-:::::::
+:::
+::::::
 
 [^01-united-nations-1]: OMNIKA DataStore is an open-access data science
     resource for researchers, authors, and technologists. It is 501c3
@@ -84,15 +85,16 @@ The `r glossary("OMNIKA")` URLs for download are:
     the files from the two different sources (UNSD and OMNIKA) are
     identical.
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-download-unsd-classification}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-download-unsd-classification}
 : Download the United Nations M49 Classification
-::::::
 :::
-::::{.my-r-code-container}
+::::
 
-<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
+::: my-r-code-container
+<center>**Run this code chunk manually if the file still needs to be
+downloaded.**</center>
 
 ```{r}
 #| label: m49-raw
@@ -133,26 +135,30 @@ pb_save_data_file(
 ```
 
 <center>(*For this R code chunk is no output available*)</center>
-
-::::
-:::::
+:::
+::::::
 
 ## Inspect M49 Data {#sec-inspect-m49-raw}
 
-To get an detailed understanding of the data structures I will provide the following two outputs of the raw-data:
+To get an detailed understanding of the data structures I will provide
+the following two outputs of the raw-data:
 
-1. A summary statistics with `skimr::skim()` followed by inspection of the first data rows with `dplyr::glimpse()`.
-2. Several detailed outputs of the classifications categories (regions) and their elements (countries) in different code chunks (tabs).
+1.  A summary statistics with `skimr::skim()` followed by inspection of
+    the first data rows with `dplyr::glimpse()`.
+2.  Several detailed outputs of the classifications categories (regions)
+    and their elements (countries) in different code chunks (tabs).
 
-To facilitate the second task I have prepared the function `pb_class_scheme()` and stored in "R./helper.r".
+To facilitate the second task I have prepared the function
+`pb_class_scheme()` and stored in "R./helper.r".
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-inspect-m49-raw}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-inspect-m49-raw}
 : Inspect raw data of the UNSD M49 geoscheme classification
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: inspect-m49-clean
 #| results: hold
@@ -165,53 +171,81 @@ glue::glue("****************** Using dplyr::glimpse() *************************"
 dplyr::glimpse(m49_raw)
 
 ```
-
-::::
-:::::
+:::
+::::::
 
 The file has 15 columns as you can also see online from the [Overview
-page](https://unstats.un.org/unsd/methodology/m49/overview/). 
+page](https://unstats.un.org/unsd/methodology/m49/overview/).
 
-The many missing values (`NAs`) for the categories `r glossary("LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` are easy explained: These three columns are coded with an 'x' if the country of this row belong to this category. Recoding these three columns with 1 and 0 (1 = yes, belongs to this category, 0 = no, does not belong to this category) will reduce most of their missing values.
+The many missing values (`NAs`) for the categories `r glossary("LDC")`,
+`r glossary("LLDC")` and `r glossary("SIDS")` are easy explained: These
+three columns are coded with an 'x' if the country of this row belong to
+this category. Recoding these three columns with 1 and 0 (1 = yes,
+belongs to this category, 0 = no, does not belong to this category) will
+reduce most of their missing values.
 
-One missing value in the regional categories (Region, Sub-Region and Intermediate Region) is related to Antarctica which is not seen by the M49 scheme as a separated region. It has therefore no regional codes and names with the exception of the overall comprising global region. But it has M49 as well ISO-alpha codes.
+One missing value in the regional categories (Region, Sub-Region and
+Intermediate Region) is related to Antarctica which is not seen by the
+M49 scheme as a separated region. It has therefore no regional codes and
+names with the exception of the overall comprising global region. But it
+has M49 as well ISO-alpha codes.
 
-One of the missing values for ISO-alpha2 and ISO-alpha3 is related to Sark, which is "recognized by the United Nations Statistics Division (UNSD) as a separate territory" but was not accepted by ISO now for more than 20 years [@mccarthy-2020]. Recently a new application (see [PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf)) will change that but currently Sark is still waiting for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
+One of the missing values for ISO-alpha2 and ISO-alpha3 is related to
+Sark, which is "recognized by the United Nations Statistics Division
+(UNSD) as a separate territory" but was not accepted by ISO now for more
+than 20 years [@mccarthy-2020]. Recently a new application (see
+[PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf))
+will change that but currently [^01-united-nations-3] is still waiting
+for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
 
-The other missing value for ISO-alpha2 codes belongs to Namibia because its abbreviation `NA` is interpreted by R as a missing value!
+[^01-united-nations-3]: Even if United Nations and ISO both list 249
+    entries (including Antarctica) there is a small difference between
+    ISO 3166 codes and the M49 geoscheme of the UN: The UN lists Sark
+    (without ISO codes), whereas the list of ISO includes "Taiwan
+    (Province of China)" with the ISO codes "TW2 and "TWN".
+
+The other missing value for ISO-alpha2 codes belongs to Namibia because
+its abbreviation `NA` is interpreted by R as a missing value!
 
 ## Clean Data (first step) {#sec-clean-data-1}
 
 ### Procedure
 
-:::::{.my-procedure}
-:::{.my-procedure-header}
-:::::: {#prp-clean-m49-1}
+:::::: my-procedure
+:::: my-procedure-header
+::: {#prp-clean-m49-1}
 : Clean M49 data of the UNSD geoscheme classification (first step)
-::::::
 :::
-::::{.my-procedure-container}
-1. Remove the global codes and global names because they a redundant: All rows have global code "001" ("World").
-2. Shorten long names to their abbreviation ("LCD", "LLCD" and "SIDS").
-3. Remove row "Antarctica" because it is not seen as separate country.
-4. Replace `NA` in the column ISO-alpha2 Code" of Namibia with the string "NA".
-5. Recode the columns `r glossary("LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` with 0 and 1.
-6. Relocate  columns `ISO-alpha3 CODE` and `Country or Area` to the first two columns because these two columns are always relevant for the later groupings and joining with groupings from other sources.
-7. Sort the data alphabetically by `Country or Area`.
 ::::
-:::::
+
+::: my-procedure-container
+1.  Remove the global codes and global names because they a redundant:
+    All rows have global code "001" ("World").
+2.  Shorten long names to their abbreviation ("LCD", "LLCD" and "SIDS").
+3.  Remove row "Antarctica" because it is not seen as separate country.
+4.  Replace `NA` in the column ISO-alpha2 Code" of Namibia with the
+    string "NA".
+5.  Recode the columns `r glossary("LDC")`, `r glossary("LLDC")` and
+    `r glossary("SIDS")` with 0 and 1.
+6.  Relocate columns `ISO-alpha3 CODE` and `Country or Area` to the
+    first two columns because these two columns are always relevant for
+    the later groupings and joining with groupings from other sources.
+7.  Sort the data alphabetically by `Country or Area`.
+:::
+::::::
 
 ### Result (first step) {#sec-display-result-1}
 
 #### Data Structure
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-clean-m49-1}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-clean-m49-1}
 : Clean UNSD M49 geoscheme classification data (first step)
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: clean-m49-1
 #| results: hold
@@ -257,40 +291,41 @@ dplyr::glimpse(m49_clean)
 
 ```
 
-***
+------------------------------------------------------------------------
 
-As  explained above, only Sark has no value for `ISO-alpha2 Code` and `ISO-alpha3 Code` .
-::::
-:::::
-
+As explained above, only Sark has no value for `ISO-alpha2 Code` and
+`ISO-alpha3 Code` .
+:::
+::::::
 
 #### Regional Groups
 
-As we can see from @cnj-clean-m49-1 the M49 classification of the United Nations knows three different regional groups (in addition to the overall region `World`.)
+As we can see from @cnj-clean-m49-1 the M49 classification of the United
+Nations knows three different regional groups (in addition to the
+overall region `World`.)
 
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-show-regional-groups}
+:::::::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
+
+::: {#exm-show-regional-groups}
 : Display different regional groups
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::::::: my-code-collection-container
+::::::::::::::: panel-tabset
 ###### Region
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-region-group}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-show-region-group}
 : Show Regions of the UNSD M49 Geoscheme
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: show-m49-region
 
@@ -305,23 +340,23 @@ As we can see from @cnj-clean-m49-1 the M49 classification of the United Nations
 
 ```
 
-***
+------------------------------------------------------------------------
 
 "Region" is a classification scheme with **`r sum(m49_region$x$data$N)`
 countries in `r length(m49_region$x$data$N)` regions**.
-
-::::
-:::::
+:::
+::::::
 
 ###### Sub-region
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-sub-regional-groups}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-show-sub-regional-groups}
 : Show Sub-regions of the UNSD M49 Geoscheme
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: show-m49-sub-region
 
@@ -336,24 +371,24 @@ countries in `r length(m49_region$x$data$N)` regions**.
 )
 ```
 
-***
+------------------------------------------------------------------------
 
-
-"Sub-region" is a classification scheme with **`r sum(m49_sub_region$x$data$N)`
-countries in `r length(m49_sub_region$x$data$N)` regions**.
-
-::::
-:::::
+"Sub-region" is a classification scheme with
+**`r sum(m49_sub_region$x$data$N)` countries in
+`r length(m49_sub_region$x$data$N)` regions**.
+:::
+::::::
 
 ###### Intermediate
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-intermediate-regional-groups}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-show-intermediate-regional-groups}
 : : Show Intermediate Regions of the UNSD M49 Geoscheme
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: show-m49-intermediate-region
 
@@ -367,78 +402,99 @@ countries in `r length(m49_sub_region$x$data$N)` regions**.
 )
 ```
 
-***
+------------------------------------------------------------------------
 
-"Intermediate Region" is a classification scheme with **`r sum(m49_intermediate_region$x$data$N)`
-countries in `r length(m49_intermediate_region$x$data$N)` regions**.
-
-
-
-::::
-:::::
-
+"Intermediate Region" is a classification scheme with
+**`r sum(m49_intermediate_region$x$data$N)` countries in
+`r length(m49_intermediate_region$x$data$N)` regions**.
 :::
-
-::::
-:::::
-
+::::::
+:::::::::::::::
+::::::::::::::::
+::::::::::::::::::::
 
 ## Clean Data (second step) {#sec-clean-data-2}
 
+The intermediate grouping does not result into the expected 22 (with
+Antarctica: 23) different regions as is mentioned in many documents. See
+for instance the [Article on Wikipedia about the UN
+geoscheme](https://en.wikipedia.org/wiki/United_Nations_geoscheme) which
+features a [colored world
+map](https://en.wikipedia.org/wiki/United_Nations_geoscheme#/media/File:United_Nations_geographical_subregions.png)
+and a list of countries grouped into the 22 different regions.
 
-The intermediate grouping does not result into the expected 22 (with Antarctica: 23) different regions as is mentioned in many documents. See for instance the [Article on Wikipedia about the UN geoscheme](https://en.wikipedia.org/wiki/United_Nations_geoscheme) which features a [colored world map](https://en.wikipedia.org/wiki/United_Nations_geoscheme#/media/File:United_Nations_geographical_subregions.png) and a list of countries grouped into the 22 different regions.
+![M49 Geoscheme developed and maintained by the United Nations
+Statistics Divisions (UNSD).
+(<a href="http://creativecommons.org/licenses/by-sa/3.0/" title="Creative Commons Attribution-Share Alike 3.0">CC
+BY-SA 3.0</a>,
+<a href="https://commons.wikimedia.org/w/index.php?curid=497598">Wikimedia
+Commons</a>)](img/chap01_UN_geographical_subregions.png){#fig-chap01_UN_geographical_subregions
+fig-alt="22 geographical sub-regions as defined by the UNSD are shown with different colors. Antarctica is not shown."
+fig-align="center" width="100%"}
 
-![M49 Geoscheme developed and maintained by the United Nations Statistics Divisions (UNSD). (<a href="http://creativecommons.org/licenses/by-sa/3.0/" title="Creative Commons Attribution-Share Alike 3.0">CC BY-SA 3.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=497598">Wikimedia Commons</a>)](img/chap01_UN_geographical_subregions.png){#fig-chap01_UN_geographical_subregions
-fig-alt="22 geographical sub-regions as defined by the UNSD are shown with different colors. Antarctica is not shown." fig-align="center" 
-width="100%"}
-
-The solution is that we have the `NA`s in `Intermediate Region Name` to replace with the values of the sub-regions. Additionally --- as can be seen in @cnj-show-intermediate-regional-groups --- there is a second small problem: Three small countries are listed as an extra group "Channel Islands". To get the official intermediate grouping we need to get rid of this group and sort all three of them into the category of 
+The solution is that we have the `NA`s in `Intermediate Region Name` to
+replace with the values of the sub-regions. Additionally --- as can be
+seen in @cnj-show-intermediate-regional-groups --- there is a second
+small problem: Three small countries are listed as an extra group
+"Channel Islands". To get the official intermediate grouping we need to
+get rid of this group and sort all three of them into the category of
 "Northern Europe".
 
 ### Procedure
 
-:::::{.my-procedure}
-:::{.my-procedure-header}
-:::::: {#prp-cnj-clean-m49-2}
+:::::: my-procedure
+:::: my-procedure-header
+::: {#prp-cnj-clean-m49-2}
 : Clean M49 data of the UNSD geoscheme classification (second step)
-::::::
 :::
-::::{.my-procedure-container}
-1. Copy the values of `Intermediate Region Name` into a new column `Intermediate Region 2` but replace the `NA`s with values from the `Sub-region Name` column.
-2. Replace the "Channel Islands" values in `Intermediate Region 2` with the value of "Northern Europe".
-3. Relocate the new `Intermediate Region 2` column after the `Intermediate Region Name` column.
-
 ::::
-:::::
+
+::: my-procedure-container
+1.  Replace the `NA` values of `Intermediate Region Name` with values
+    from the `Sub-region Name` column.
+2.  Replace the `NA` values of `Intermediate Region Code` with values
+    from the `Sub-region Code` column.
+3.  Replace the "Channel Islands" values in `Intermediate Region Name`
+    with the value of "Northern Europe".
+4.  Replace the "Channel Islands" values ("830") in
+    `Intermediate Region Code` with the code of "Northern Europe"
+    ("154").
+:::
+::::::
 
 ### Result (second step) {#sec-display-result-2}
 
 #### Data Structure
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-clean-m49-2}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-clean-m49-2}
 : Clean UNSD M49 geoscheme classification data (second step)
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: clean-m49-2
+#| results: hold
 
 
 m49_clean2 <- base::readRDS("data/unsd/m49_clean.rds") |> 
 ## replace `NA`s of intermediate regions with sub-region values ######
-  dplyr::mutate(`Intermediate Region 2` = 
+  dplyr::mutate(`Intermediate Region Name` = 
          base::ifelse(is.na(`Intermediate Region Name`), 
-                      `Sub-region Name`, `Intermediate Region Name`)
-  ) |> # (1)
-## replace ""Channel Islands" with "North Europe" ######
-    dplyr::mutate(`Intermediate Region 2` = 
-         base::ifelse(`Intermediate Region 2` == "Channel Islands", 
-                      "Northern Europe", `Intermediate Region 2`)
-  ) |> # (2)
-    dplyr::relocate(`Intermediate Region 2`, .after = `Intermediate Region Name`) # (3)
-
+                      `Sub-region Name`, `Intermediate Region Name`), # (1)
+     `Intermediate Region Code` = 
+         base::ifelse(is.na(`Intermediate Region Code`), 
+                      `Sub-region Code`, `Intermediate Region Code`), # (2)
+## replace ""Channel Islands" with "Northen Europe" values ######
+    `Intermediate Region Name` = 
+         base::ifelse(`Intermediate Region Name` == "Channel Islands", 
+                      "Northern Europe", `Intermediate Region Name`), # (3)
+    `Intermediate Region Code` = 
+         base::ifelse(`Intermediate Region Code` == "830", 
+                      "154", `Intermediate Region Code`)              # (4) 
+  )
 
 
 ## save new tibble as clean2 ##########
@@ -453,41 +509,226 @@ glue::glue("")
 glue::glue("****************** Using dplyr::glimpse() *************************")
 dplyr::glimpse(m49_clean2)
 
-
-
-
 ```
-
-::::
-:::::
-
-
-#### Intermediate Region 2
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-intermediate-region-2}
-: Show correct intermediate region for the UNSD M49 Geoscheme
-::::::
 :::
-::::{.my-r-code-container}
+::::::
+
+With the "trick" to replace the `NA`s of `Intermediate Region Name` with
+the values of `Sub-regional Name`column we also got rid of the many
+`NA`s in that and the accompanying `Intermediate Region Code` column.
+
+#### Intermediate Region Again
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-show-intermediate-region-2}
+: Show correct intermediate region for the UNSD M49 Geoscheme
+:::
+::::
+
+::: my-r-code-container
 ```{r}
-#| label: show-intermediate-region-2
+#| label: show-intermediate2-region
+#| results: hold
 
 ## show new intermediate result ###############
 (
     m49_intermediate2 <- pb_class_scheme(
             df = base::readRDS("data/unsd/m49_clean2.rds"),
             sel1 = rlang::quo(`Country or Area`),
-            sel2 = rlang::quo(`Intermediate Region 2`)
+            sel2 = rlang::quo(`Intermediate Region Name`)
             )
 ) 
   
 ```
+:::
+::::::
 
-***
+The new regional group `Intermediate Region Name` is a classification
+scheme with **`r sum(m49_intermediate2$x$data$N)` countries in
+`r length(m49_intermediate2$x$data$N)` regions**. As Antarctica is not
+included the grouping with `Intermediate Region Name` represents the
+correct M49 classification.
 
-The new regional group `Intermediate Region 2` is a classification scheme with **`r sum(m49_intermediate2$x$data$N)` countries in `r length(m49_intermediate2$x$data$N)` regions**. As Antarctica is not included the grouping with `Intermediate Region 2` represents the correct M49 classification.
+## Un Countries
 
+The UN M49 geoscheme classification data contains 15 columns and 248
+rows (= Columns or Areas). This is much more than the [currently 193
+member states of the United
+Nations](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html).
+Even if we include Holy See (Vatican) and the State of Palestine, which
+are non-member observer states and the two controversial countries /
+areas (Taiwan & Kosovo) we are far from the 248 countries or areas
+listed in the M49 geoscheme of the United Nations.
+
+### Procedure
+
+:::::: my-procedure
+:::: my-procedure-header
+::: {#prp-un-countries}
+: Add Column for UN country membership
+:::
 ::::
+
+::: my-procedure-container
+To get only the 193 member states and the two non-member observer states
+(= 195 UN states) I will apply the following procedure:
+
+1.  Prepared a list with the names of the countries and their ISO-alpha3
+    codes. (The ISO-alpha3 code is important for the later joining with
+    the cleaned data `m49_clean.rds`). --- Done manually, no program
+    code.
+2.  Saved this two row data file manually as
+    "data/unsd/un_countries.csv". --- Done manually, no program code.
+3.  Load "data/unsd/un_countries.csv" into memory.
+4.  Add a new row `UN` (for UN member state) to the data, fill all
+    values with "1" (= member state).
+5.  Save the result as R object `un_countries.rds`
+6.  Load `m49_clean.rds` and `un_countries.rds`.
+7.  Join these two data frames as tibbles fully via their ISO code
+    columns.
+8.  Replace all `NA`s of the `UN` column (these rows did not come from
+    the "un_countries" file) with the value "0" (= non UN member state).
+9.  Delete the redundant `Country` column --- originally from the
+    "un_countries" file.
+10. Save the result as new R object `m49_clean3.rds`.
+11. Inspect the result.
+:::
+::::::
+
+### Result
+
+:::::::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
+
+::: {#exm-show-clean3-file}
+: Display structure and content of the adapted UN M49 geoscheme dataset
+:::
 :::::
+
+:::::::::::::::: my-code-collection-container
+::::::::::::::: panel-tabset
+###### Structure
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-add-un-member-state-column}
+: Add column with UN membership
+:::
+::::
+
+::: my-r-code-container
+```{r}
+#| label: get-un-countries
+#| results: hold
+
+un_countries <- readr::read_csv("data/unsd/un_countries.csv",
+                                show_col_types = FALSE) |>       # (3)
+  dplyr::mutate(UN = "1")                                        # (4)
+  
+pb_save_data_file("unsd", un_countries, "un_countries.rds")      # (5)
+
+x <- base::readRDS("data/unsd/m49_clean2.rds")                   # (6a)
+y <- base::readRDS("data/unsd/un_countries.rds")                 # (6b)
+
+m49_clean3 <- dplyr::full_join(
+  x, y, dplyr::join_by(`ISO-alpha3 Code` == Code)
+  ) |>                                                           # (7)
+  dplyr::mutate(UN =
+        base::ifelse(base::is.na(UN), "0", UN)
+        ) |>                                                     # (8)
+  dplyr::select(-Country)                                        # (9)
+
+pb_save_data_file("unsd", m49_clean3, "m49_clean3.rds")          # (10)
+
+skimr::skim(m49_clean3)                                          # (11)
+```
+:::
+::::::
+
+###### UN members
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-show-un-member-states}
+: List the 193 UN member states (plus Vatican and Palestine as
+non-member observers)
+:::
+::::
+
+::: my-r-code-container
+```{r}
+#| label: list-un-members
+
+base::readRDS("data/unsd/m49_clean3.rds") |> 
+  dplyr::filter(UN == "1") |> 
+  dplyr::select(1,2,4,8) |> 
+  DT::datatable()
+```
+:::
+::::::
+
+###### Non-UN members
+
+:::::: my-r-code
+:::: my-r-code-header
+<div>
+
+: List the 193 UN member states (plus Vatican and Palestine as
+non-member observers)
+
+</div>
+::::
+
+::: my-r-code-container
+```{r}
+#| label: list-non-un-members
+
+base::readRDS("data/unsd/m49_clean3.rds") |> 
+  dplyr::filter(UN == "0") |> 
+  dplyr::select(1,2,4,8) |> 
+  DT::datatable()
+```
+:::
+::::::
+:::::::::::::::
+::::::::::::::::
+::::::::::::::::::::
+
+## Summary
+
+The UN M49 geoscheme data contains 249 countries or areas This includes
+193 UN members, 2 non-member states with observer status, Antartica and 53
+dependent territories. With the exception of Sark all of this regions have ISO-alpha2 and
+ISO-alpha3 codes `ISO-alpha2 Code` and `ISO-alpha3 Code`. These two columns are important, because
+they facilitate joining data from other sources via this standardized codes. This is
+crucial because the spelling of the names of countries and areas is
+not always identical in the different sources. You can't therefore often
+not join two data sets just by country or area name but needs a more
+systematic approach with the ISO codes.
+
+UN M49 geoscheme classification has three regional division with 5, 17
+and 22 groups (always without Antarctica and not counting the overall
+group "World" with code "001").
+
+About the three grouping we can say (always not including Antarctica):
+
+-   **Region**: It consists of five groups representing more or less the
+    continents. But instead of the traditional separation between
+    Northern and Southern America it unites these two continents into
+    the "Americas", including also the Caribbean countries.
+-   **Sub-region**: It consists of 17 groups by dividing some of the
+    continents into very big sub-regions. For instance the many African
+    countries are grouped only into two groups: Northern Africa and
+    Sub-Saharan Africa. This is in contrast to the more detailed
+    "Intermediate region" where we have Northern-, Eastern, Western,
+    Southern and Middle Africa. On the other hand the smaller Europe is divided into
+    four sub-regions. The sub-regional division is in my opinion therefore not a
+    very consistent classification.
+-   **Intermediate region**: It consists of 22 groups and is for
+    statistical purposes the most detailed **regional** classification.
+    
+Additonally there are with `r glossary("LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` three other divisions, driven not by regional reasons but by geographical common features. As we will see in the other chapters there are --- besides of the UN M49 geoscheme --- other approaches for a consistent country classification.
+
