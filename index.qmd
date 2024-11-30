@@ -2,98 +2,45 @@
 
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
+At the moment (end of 2024) I am planning four chapters:
 
-XXX: ADD STATUS OF THIS PROJECT IN PERCENT
-
+- United Nations `r glossary("M49")` geomscheme classification: 100% (finished)
+- World Bank classification: 0%
+- World Inequality Database (`r glossary("WID")`): 0%
+- World Happiness Report (`r glossary("WHR")`): 0%
 
 :::
 
+::: {.callout-caution}
+###### WATCH OUT!
 
-::: my-watch-out
-::: my-watch-out-header
-WATCH OUT: This is my personal learning material and is therefore
-neither an accurate replication nor an authoritative textbook.
-:::
-
-::: my-watch-out-container
-I am writing this book as a text for others to read because that forces me to
-become explicit and explain all my learning outcomes more carefully.
-Please keep in mind that this text is not written by an expert but by a
-learner.
-
-Text passages with content I am already familiar I have skipped. Section
-of the original text where I needed more in-depth knowledge I have
-elaborated and added my own comments resulted from my personal research.
-
-Be warned! In spite of replicating most of the content this Quarto book
-may contain many mistakes. All the misapprehensions and errors are of
-course my own responsibility.
-:::
+This is my personal learning material.  It does not represent an accepted scientific standard nor is the text peer reviewed or otherwise accepted by the scientific community. 
 :::
 
 ## Content and Goals of this Book {.unnumbered}
 
-This Quarto book collects my personal notes, trials and exercises of
-[BOOK NAME](URL) by XXX: NAME OF AUTHOR [CITATION].
+I am motivated by three reasons to write this book:
 
-XXX: DESCRIPTION OF THE BOOK AND WHY IT IS WORTH FOR A QUARTO BOOK
+1. During my personal research with datasets from countries over the world (concretely working with data from the `r glossary("WID")` and `r glossary("WHR")`) I experienced the problem to analyse and represent this manifold data in a suitable way. With about 250 countries or regions one needs a categorization scheme to summarize the data into plausible groups.
+2. I noticed that there are not only different classification systems in place but moreover it was not always clear which countries or regions are member of these groups.
+3. I published this text and made it under the [license CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) free available because that forces me to become explicit and explain all my thoughts more carefully.
 
 
 
-## Text passages
+## Glossary
 
-### Quotes and personal comments
+I am using the {**glossary**} package (see @sec-package-glossary) to create links to glossary
+entries . If you hover with your mouse over the double underlined links it opens
+an window with the appropriate glossary text. Try this example: `r glossary("IDAx", "IDA")`.
 
-My text consists mostly of quotes from the [BOOK NAME].
+At the end of each chapter I have listed the glossary entries. Sometimes you will find the letter "x" at the end of a glossary abbreviation. The reason for this anomaly is a restriction of the {**glossary**} package: It displays wrong items if the same letter combination is used by another entry and comes first in my alphabetically sorted list of entries. My glossary has for instance the entry of "Cross Val**ida**ted" which would produce a wrong entry because it include the "IDA" abbreviation.
 
-::: my-example
-::: my-example-header
-::: {#exm-preface-quote}
-: Quote
-:::
-:::
+If you fork the [repo of this "Country Classsification" book](https://github.com/petzi53/country-classifications) then the glossary will not work out of the box. Load down the `glossary.yml` file from [my
+glossary-pb GitHub
+repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
+store it on your hard disk and change the path in the code chunk according to
+@lst-preface-load-glossary.
 
-::: my-example-container
-XXX: EXAMPLE QUOTE
-:::
-:::
-
-Often I made minor editing (e.g., shorting the text) or put the content
-in my own wording. In this case I couldn't quote the text as it does not
-represent a specific text passage. In this case I end
-the paraphrase with `(AUTOR NAME ibid.)`.
-
-In any case most of the text in this Quarto book is not mine but coming
-from different resources. 
-
-::: my-example
-::: my-example-header
-::: {#exm-preface-note}
-: Personal note
-:::
-:::
-
-::: my-example-container
-::: my-note
-::: my-note-header
-::: {#cor-preface-note-example}
-: This is a personal note
-:::
-:::
-
-::: my-note-container
-In this kind of box I will write my personal thoughts and reflections.
-Usually this box will appear stand-alone (without the wrapping example
-box).
-:::
-:::
-:::
-:::
-
-### Glossary
-
-I am using the {**glossary**} package to create links to glossary
-entries.\]
 
 ::: my-r-code
 ::: my-r-code-header
@@ -125,7 +72,7 @@ library(glossary)
 ##    https://github.com/petzi53/glossary-pb/blob/master/glossary.yml)
 
 ## 3. Store the file on your hard disk
-##    and change the following path accordingly
+##    and change the following path accordingly to your configuation
 
 glossary::glossary_path("../glossary-pb/glossary.yml")
 
@@ -135,44 +82,35 @@ glossary::glossary_path("../glossary-pb/glossary.yml")
 :::
 :::
 
-If you hover with your mouse over the double underlined links it opens
-an window with the appropriate glossary text. Try this example: `r glossary("Z-Score")`.
+::: {.callout-caution}
+###### The glossary items are not taken uncritically!
 
-::: my-watch-out
-::: my-watch-out-header
-WATCH OUT! Glossary is my private learning vehicle
+The glossary is just my private learning vehicle. The entries are not intended as my suggestions for a textbook or other official accepted definitions. I have added many of the glossary entries when I was working through other books either taking their text passages or taken text via internet inquiries from other resources. Often I have added the source of glossary entry. Sometimes I have used abbreviation for central books I have used for my personal learning career, but I need still to provide a key what these short references mean.
 :::
 
-::: my-watch-out-container
-::: {layout="[10, 30]" layout-valign="center"}
-![](https://debruine.github.io/glossary/logo.png)
-
-I have added many of the glossary entries when I was working through
-other books either taking the text passage of these books I was reading
-or via an internet recherche from other resources. I have added the
-source of glossary entry. Sometimes I have used abbreviation, but I need
-still to provide a key what this short references mean.
-:::
-
-:::
-:::
-
-If you fork the [XXX: REPO OF THIS BOOK(URL OF THIS BOOK) then the glossary will not
-work out of the box. Load down the `glossary.yml` file from [my
-glossary-pb GitHub
-repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
-store it on your hard disk and change the path in the code chunk
-@lst-preface-load-glossary.
-
-In any case I am the only responsible person for this text, especially
-if I have used code from the resources wrongly or misunderstood a quoted
-text passage.
 
 ## R Code and Datasets
 
-XXX: EXPLAIN AND REWRITE DATA USAGE
+I am following mainly the [Tidyverse Style Guide](https://style.tidyverse.org/) with two important exceptions inspired by [Google’s R Style Guide](https://google.github.io/styleguide/Rguide.html):
 
-I am using the package name also for the default installation of base R.
+1. Qualify namespace.
+2. Start the name of private function with the abbreviation `pb_`.
+
+### Qualifying namespace
+
+To qualify the namespace is important for my personal
+learning. Besides preventing conflicts with functions of identical names
+from different packages it helps me to learn (or remember) which
+function belongs to which package. I think this justifies the small
+overhead and helps to make R code chunks self-sufficient. (No previous
+package loading, or library calls in the setup chunk.) 
+
+To foster learning the relation between function and package I embrace the package
+name with curly brakes and format it in bold. Additionally I have added a
+special annex file "Used packages" with an alphabetically sorted list of
+short package descriptions.
+
+I am using the package name (namespace) also for the default installation of base R packages.
 This wouldn't be necessary but it helps me to understand where the base
 R functions come from. What follows is a list of base R packages of the
 system library included into every installation and attached (opened) by
@@ -187,10 +125,6 @@ default:
 -   {**stats**}: The R Stats Package
 -   {**utils**}: The R Utils Package
 
-I am not using always the exact code snippets for my replications
-because I am not only replicating the code to see how it works but also
-to change the values of parameters to observe their influences.
-
 When it is clear then I will follow the advice from Hadley Wickham:
 
 > When you call a function, you typically omit the names of data
@@ -199,61 +133,17 @@ When it is clear then I will follow the advice from Hadley Wickham:
 > guide](https://style.tidyverse.org/syntax.html)).
 
 
-## Resources
+### Private functions
 
-::: {.my-resource}
-::: {.my-resource-header}
-:::::: {#lem-index-book-resources}
-: Resources used for this Quarto book
-::::::
-:::
+To facilitate my coding I have prepared some private functions. To get a visual clue that they are my own functions their names start with "pb_". They are all collected in the file "R/helper.R" which is sourced at the top of every file (chapter).
 
-::: {.my-resource-container}
+My private functions are:
 
-XXX: ADD HERE YOUR SOURCES
-:::
-:::
+- `pb_create_folder()`: create folder at path
+- `pb_save_data_file()`: save data file into "data" folder at path
+- `pb_class_scheme()`: list groups with its elements
 
-## Packages introduced in the preface
-
-:::::{.my-resource}
-:::{.my-resource-header}
-:::::: {#lem-chap-index-glossary}
-glossary: Glossaries for Markdown and Quarto Documents
-::::::
-:::
-::::{.my-resource-container}
-
-***
-
-::: {#pak-glossary}
-
-***
-
-{**glossary**}: [Glossaries for Markdown and Quarto Documents](https://debruine.github.io/glossary/)
-
-Add glossaries to markdown and quarto documents by tagging individual words. Definitions can be provided inline or in a separate file.
-
-::: {layout="[10, 30]" layout-valign="center"}
-![](img/logoi/logo-glossary-min.png){width="176"}
-
-
-There is a lot of necessary jargon to learn for coding. The goal of glossary is to provide a lightweight solution for making glossaries in educational materials written in quarto or R Markdown. This package provides functions to link terms in text to their definitions in an external glossary file, as well as create a glossary table of all linked terms at the end of a section.
-
-:::
-
-
-{**glossary**}: A Package to Create Glossaries for Markdown and Quarto Documents
-:::
-
-
-***
-::::
-:::::
-
-## Private Functions
-
-XXX: DESCRIBE PRIVATE FUNCTION USED IN THIS BOOK
+You will find the descriptions of the parameters and the code with notes in the "helper.R" file.
 
 ## Glossary
 
@@ -261,7 +151,7 @@ XXX: DESCRIBE PRIVATE FUNCTION USED IN THIS BOOK
 #| label: glossary-table
 #| echo: false
 
-glossary_table()
+glossary::glossary_table()
 ```
 
 ------------------------------------------------------------------------

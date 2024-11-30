@@ -1,0 +1,15 @@
+{
+  "hash": "ee07a872bd895958acd77bad8f289f31",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Packages Used {#sec-package}\n\n\n\n\n\n\n\n\n\n\n## Glossary {#sec-package-glossary}\n\n:::::: my-package\n::: my-package-header\nPackage Profile: glossary\n:::\n\n:::: my-package-container\n<center>[Glossaries for Markdown and Quarto Documents](https://debruine.github.io/glossary/) [@glossary]</center>\n\n------------------------------------------------------------------------\n\n::: {layout=\"[10, 30]\" layout-valign=\"center\"}\n![](img/logoi/logo-glossary-min.png){width=\"176\"}\n\nAdd glossaries to markdown and quarto documents by tagging individual words. Definitions can be provided inline or in a separate file.\n:::\n\n------------------------------------------------------------------------\n\nThere is a lot of necessary jargon to learn for coding. The goal of {**glossary**} is to provide a lightweight solution for making glossaries in educational materials written in quarto or R Markdown. This package provides functions to link terms in text to their definitions in an external glossary file, as well as create a glossary table of all linked terms at the end of a section.\n\nSee [getting started](https://debruine.github.io/glossary/articles/glossary.html) for more details.\n::::\n::::::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

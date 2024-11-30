@@ -10,7 +10,7 @@ base::source(file = "R/helper.R")
 
 ## Objectives {#sec-m49-objectives}
 
-:::::: {#obj-un-objectives}
+:::::: {#obj-m49-objectives}
 ::::: my-objectives
 ::: my-objectives-header
 Chapter section list
@@ -18,18 +18,20 @@ Chapter section list
 
 ::: my-objectives-container
 1.  Locate the file for the UN M49 geoscheme classification data, get it
-    and save it as raw data (@sec-download-m49).
-2.  Inspect the data thoroughly (@sec-inspect-m49-raw).
-3.  Clean the data (first step) (@sec-clean-data-1).
-4.  Display the grouping results (@sec-display-result-1).
+    and save it as raw data (@sec-m49-download).
+2.  Inspect the data thoroughly (@sec-m49-inspect-raw).
+3.  Clean the data (first step) (@sec-m49-clean-data-1).
+4.  Display the grouping results (@sec-m49-display-result-1).
 5.  Clean the intermediate region to get the official results
-    (@sec-clean-data-2).
-6.  Display the new intermediate region group (@sec-display-result-2).
+    (@sec-m49-clean-data-2).
+6.  Display the new intermediate region group (@sec-m49-display-result-2).
+7.  List UN and non-UN member states {@sec-m49-un-member-states}
+8.  Summary and conclusion {@sec-m49-summary}
 :::
 :::::
 ::::::
 
-## Download M49 Data {#sec-download-m49}
+## Download M49 Data {#sec-m49-download}
 
 An important --- maybe the most authoritative --- classification system
 is developed and maintained by the United Nations. It is expressively
@@ -44,7 +46,7 @@ page](https://unstats.un.org/unsd/methodology/m49/overview/).
 
 :::::: my-resource
 :::: my-resource-header
-::: {#lem-unsd.m49}
+::: {#lem-m49-unsd}
 : United Nations Statistics Division M49 Classification
 :::
 ::::
@@ -87,7 +89,7 @@ The `r glossary("OMNIKA")` URLs for download are:
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-download-unsd-classification}
+::: {#cnj-m49-classification-download}
 : Download the United Nations M49 Classification
 :::
 ::::
@@ -138,7 +140,7 @@ pb_save_data_file(
 :::
 ::::::
 
-## Inspect M49 Data {#sec-inspect-m49-raw}
+## Inspect M49 Data {#sec-m49-inspect-raw}
 
 To get an detailed understanding of the data structures I will provide
 the following two outputs of the raw-data:
@@ -153,7 +155,7 @@ To facilitate the second task I have prepared the function
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-inspect-m49-raw}
+::: {#cnj-m49-inspect-raw}
 : Inspect raw data of the UNSD M49 geoscheme classification
 :::
 ::::
@@ -207,13 +209,13 @@ for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
 The other missing value for ISO-alpha2 codes belongs to Namibia because
 its abbreviation `NA` is interpreted by R as a missing value!
 
-## Clean Data (first step) {#sec-clean-data-1}
+## Clean Data (first step) {#sec-m49-clean-data-1}
 
 ### Procedure
 
 :::::: my-procedure
 :::: my-procedure-header
-::: {#prp-clean-m49-1}
+::: {#prp-m49-clean-1}
 : Clean M49 data of the UNSD geoscheme classification (first step)
 :::
 ::::
@@ -234,13 +236,13 @@ its abbreviation `NA` is interpreted by R as a missing value!
 :::
 ::::::
 
-### Result (first step) {#sec-display-result-1}
+### Result (first step) {#sec-m49-display-result-1}
 
 #### Data Structure
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-clean-m49-1}
+::: {#cnj-m49-clean-1}
 : Clean UNSD M49 geoscheme classification data (first step)
 :::
 ::::
@@ -300,7 +302,7 @@ As explained above, only Sark has no value for `ISO-alpha2 Code` and
 
 #### Regional Groups
 
-As we can see from @cnj-clean-m49-1 the M49 classification of the United
+As we can see from @cnj-m49-clean-1 the M49 classification of the United
 Nations knows three different regional groups (in addition to the
 overall region `World`.)
 
@@ -309,7 +311,7 @@ overall region `World`.)
 ::: my-code-collection-icon
 :::
 
-::: {#exm-show-regional-groups}
+::: {#exm-m49-show-regional-groups}
 : Display different regional groups
 :::
 :::::
@@ -320,7 +322,7 @@ overall region `World`.)
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-show-region-group}
+::: {#cnj-m49-show-region-group}
 : Show Regions of the UNSD M49 Geoscheme
 :::
 ::::
@@ -351,7 +353,7 @@ countries in `r length(m49_region$x$data$N)` regions**.
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-show-sub-regional-groups}
+::: {#cnj-m49-show-sub-regional-groups}
 : Show Sub-regions of the UNSD M49 Geoscheme
 :::
 ::::
@@ -383,7 +385,7 @@ countries in `r length(m49_region$x$data$N)` regions**.
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-show-intermediate-regional-groups}
+::: {#cnj-m49-show-intermediate-regional-groups}
 : : Show Intermediate Regions of the UNSD M49 Geoscheme
 :::
 ::::
@@ -413,7 +415,7 @@ countries in `r length(m49_region$x$data$N)` regions**.
 ::::::::::::::::
 ::::::::::::::::::::
 
-## Clean Data (second step) {#sec-clean-data-2}
+## Clean Data (second step) {#sec-m49-clean-data-2}
 
 The intermediate grouping does not result into the expected 22 (with
 Antarctica: 23) different regions as is mentioned in many documents. See
@@ -434,7 +436,7 @@ fig-align="center" width="100%"}
 
 The solution is that we have the `NA`s in `Intermediate Region Name` to
 replace with the values of the sub-regions. Additionally --- as can be
-seen in @cnj-show-intermediate-regional-groups --- there is a second
+seen in @cnj-m49-show-intermediate-regional-groups --- there is a second
 small problem: Three small countries are listed as an extra group
 "Channel Islands". To get the official intermediate grouping we need to
 get rid of this group and sort all three of them into the category of
@@ -444,7 +446,7 @@ get rid of this group and sort all three of them into the category of
 
 :::::: my-procedure
 :::: my-procedure-header
-::: {#prp-cnj-clean-m49-2}
+::: {#prp-m49-cnj-clean-2}
 : Clean M49 data of the UNSD geoscheme classification (second step)
 :::
 ::::
@@ -462,13 +464,13 @@ get rid of this group and sort all three of them into the category of
 :::
 ::::::
 
-### Result (second step) {#sec-display-result-2}
+### Result (second step) {#sec-m49-display-result-2}
 
 #### Data Structure
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-clean-m49-2}
+::: {#cnj-m49-clean-2}
 : Clean UNSD M49 geoscheme classification data (second step)
 :::
 ::::
@@ -521,7 +523,7 @@ the values of `Sub-regional Name`column we also got rid of the many
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-show-intermediate-region-2}
+::: {#cnj-m49-show-intermediate-region-2}
 : Show correct intermediate region for the UNSD M49 Geoscheme
 :::
 ::::
@@ -550,7 +552,7 @@ scheme with **`r sum(m49_intermediate2$x$data$N)` countries in
 included the grouping with `Intermediate Region Name` represents the
 correct M49 classification.
 
-## Un Countries
+## Un Countries {#sec-m49-un-member-states}
 
 The UN M49 geoscheme classification data contains 15 columns and 248
 rows (= Columns or Areas). This is much more than the [currently 193
@@ -565,7 +567,7 @@ listed in the M49 geoscheme of the United Nations.
 
 :::::: my-procedure
 :::: my-procedure-header
-::: {#prp-un-countries}
+::: {#prp-m49-un-countries}
 : Add Column for UN country membership
 :::
 ::::
@@ -598,23 +600,23 @@ To get only the 193 member states and the two non-member observer states
 
 ### Result
 
-:::::::::::::::::::: my-code-collection
+::::::: my-code-collection
 ::::: my-code-collection-header
 ::: my-code-collection-icon
 :::
 
-::: {#exm-show-clean3-file}
+::: {#exm-m49-show-clean3-file}
 : Display structure and content of the adapted UN M49 geoscheme dataset
 :::
 :::::
 
-:::::::::::::::: my-code-collection-container
-::::::::::::::: panel-tabset
+:::::: my-code-collection-container
+::: panel-tabset
 ###### Structure
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-add-un-member-state-column}
+::: {#cnj-m49-add-un-member-state-column}
 : Add column with UN membership
 :::
 ::::
@@ -652,7 +654,7 @@ skimr::skim(m49_clean3)                                          # (11)
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-show-un-member-states}
+::: {#cnj-m49-show-un-member-states}
 : List the 193 UN member states (plus Vatican and Palestine as
 non-member observers)
 :::
@@ -674,12 +676,10 @@ base::readRDS("data/unsd/m49_clean3.rds") |>
 
 :::::: my-r-code
 :::: my-r-code-header
-<div>
-
+::: {#cnj-show-non-un-member-states}
 : List the 193 UN member states (plus Vatican and Palestine as
 non-member observers)
-
-</div>
+:::
 ::::
 
 ::: my-r-code-container
@@ -692,12 +692,12 @@ base::readRDS("data/unsd/m49_clean3.rds") |>
   DT::datatable()
 ```
 :::
+::::
+:::::
 ::::::
-:::::::::::::::
-::::::::::::::::
-::::::::::::::::::::
+:::::::
 
-## Summary
+## Summary {#sec-m49-summary}
 
 The UN M49 geoscheme data contains 249 countries or areas This includes
 193 UN members, 2 non-member states with observer status, Antartica and 53

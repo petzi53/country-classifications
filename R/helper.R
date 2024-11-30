@@ -5,6 +5,7 @@
 # CONTENT:
 ## - pb_create_folder: create folder at path
 ## - pb_save_data_file: save data file
+## - pb_class_scheme: list groups with its elements
 ##########################################################
 
 

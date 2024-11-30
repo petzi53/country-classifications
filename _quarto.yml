@@ -17,6 +17,7 @@ book:
   chapters:
     - index.qmd
     - 01-united-nations.qmd
+    - 96-packages-used.qmd
 
 bibliography:
     - references.bib

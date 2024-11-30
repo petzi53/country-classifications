@@ -1,20 +1,27 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Statistics With R
+# Country Classifications
 
 <!-- badges: start -->
+
+Shield: [![CC BY-SA
+4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-sa/4.0/)
+
+This work is licensed under a [Creative Commons Attribution-ShareAlike
+4.0 International
+License](http://creativecommons.org/licenses/by-sa/4.0/).
+
+[![CC BY-SA
+4.0](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-sa/4.0/)
+
 <!-- badges: end -->
 
-This Quarto book collects my personal notes, trials and exercises of
-[Statistics With R: Solving Problems Using Real-World
-Data](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567) by
-Jenine K. Harris.
+This Quarto book collects my research on different country
+classification schemata. Researchers can use the data files of this repo
+to categorize country data of varying provenience.
 
-WATCH OUT: This is my personal learning material and is therefore
-neither an accurate replication nor an authoritative textbook.
-
-I wrote this book as a text for others to read because that forces me to
-become explicit and explain all my learning outcomes more carefully.
-Please keep in mind that this text is not written by an expert but by a
-learner.
+While researching country datasets, I experienced the problem of
+adequately analyzing and representing this manifold data. One needs a
+categorization scheme with about 250 countries or regions to summarize
+the data into plausible groups.
