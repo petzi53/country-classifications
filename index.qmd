@@ -2,12 +2,13 @@
 
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
-At the moment (end of 2024) I am planning four chapters:
+At the moment (end of 2024) I am planning four chapters and one annex:
 
 - United Nations `r glossary("M49")` geomscheme classification: 100% (finished)
-- World Bank classification: 0%
+- World Bank classification: 50%
 - World Inequality Database (`r glossary("WID")`): 0%
 - World Happiness Report (`r glossary("WHR")`): 0%
+- Annex: Used Packages: 5%
 
 :::
 
