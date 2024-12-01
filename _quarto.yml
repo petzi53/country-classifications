@@ -17,6 +17,8 @@ book:
   chapters:
     - index.qmd
     - 01-united-nations.qmd
+    - 02-world-bank.qmd
+  appendices:
     - 96-packages-used.qmd
 
 bibliography:

@@ -1,0 +1,739 @@
+# World Bank (WB) {#sec-wb}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+```
+
+:::::: {#obj-wb-objectives}
+::::: my-objectives
+::: my-objectives-header
+Chapter section list
+:::
+
+::: my-objectives-container
+:::
+:::::
+::::::
+
+## Download World Bank Data {#sec-wb-download}
+
+The World Bank Classification can be downloaded from [How does the World
+Bank classify
+countries?](https://datahelpdesk.worldbank.org/knowledgebase/articles/378834-how-does-the-world-bank-classify-countries).
+At the bottom of the page you can see the line "Download an Excel file
+of historical classifications by income.", providing a link with word
+"Download". The downloaded file `CLASS.xlsx` does *not* contain a
+historical classification by income but the general classification
+system of the last available year (2023).
+
+Yes, there is another Excel file `OGHIST.xslx` with the historical
+cutoffs for incomes and lending categories, dating from 1987 to 2023.
+But the download link for this file is located at another web page:
+[World Bank Country and Lending
+Groups](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519).
+On this page you will also find the updates for the cutoffs for
+countries `r glossary("GNI")` income per capita which is important for
+the lending eligibility of countries. [World Bank country
+classifications by income level for
+2024-2025](https://blogs.worldbank.org/en/opendata/world-bank-country-classifications-by-income-level-for-2024-2025)
+has the current updated values and changes over the last year.
+
+The file `CLASS.xlsx` am interested here consists of three sheets:
+
+1.  "List of Economoies"
+2.  "compositions" and
+3.  "Notes"
+
+I am going to download the first two Excel sheets.
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-wb-download}
+: Download the World Bank classification file
+:::
+::::
+
+::: my-r-code-container
+<center>**Run this code chunk manually if the file still needs to be
+downloaded.**</center>
+
+```{r}
+#| label: wb-class
+#| code-fold: show
+#| eval: false
+
+
+## create folders ###########
+pb_create_folder(base::paste0(here::here(), "/data/"))
+pb_create_folder(base::paste0(here::here(), "/data/wb"))
+
+## download wb-class file ##############
+downloader::download(
+    url = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx",
+    destfile = base::paste0(here::here(), 
+            "/data/wb/wb-class.xlsx")
+)
+
+## create R object ############
+wb_economies <- 
+  readxl::read_xlsx(
+    base::paste0(here::here(), 
+    "/data/wb/wb-class.xlsx"),
+           sheet = "List of economies") 
+
+
+wb_compositions <- 
+  readxl::read_xlsx(
+    base::paste0(here::here(), 
+    "/data/wb/wb-class.xlsx"),
+           sheet = "compositions")
+
+## save as .rds files ###############
+pb_save_data_file(
+  "wb", 
+  wb_economies, 
+  "wb_economies.rds"
+)
+
+
+pb_save_data_file(
+  "wb", 
+  wb_compositions, 
+  "wb_compositions.rds"
+)
+
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+:::
+::::::
+
+## Inspect World Bank Data {#sec-wb-inspect}
+
+To get an detailed understanding of the data structures I will provide
+the following outputs:
+
+1.  A summary statistics with `skimr::skim()` followed by inspection of
+    the value for the first rows of each column with `dplyr::glimpse()`.
+2.  Several detailed outputs of the classifications categories (regions)
+    and their elements (countries) in different code chunks (tabs).
+
+## Show Data
+
+:::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
+
+::: {#exm-wb-inspect}
+: Inspect the structure of the World Bank classification
+:::
+:::::
+
+:::::::::::: my-code-collection-container
+::::::::::: panel-tabset
+###### WB `economies`
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-inspect-wb-sheet1}
+: Inspect sheet `List of Economies` of the World Bank classification
+file
+:::
+::::
+
+::: my-r-code-container
+```{r}
+#| label: inspect-wb-sheet1
+#| results: hold
+
+wb_economies <- base::readRDS("data/wb/wb_economies.rds")
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(wb_economies)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(wb_economies)
+
+```
+:::
+::::::
+
+###### WB `compositions`
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-inspect-wb-sheet2}
+: Inspect sheet `compositions` of the World Bank classification file
+:::
+::::
+
+::: my-r-code-container
+```{r}
+#| label: inspect-wb-sheet2
+#| results: hold
+
+wb_compositions <- base::readRDS("data/wb/wb_compositions.rds")
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(wb_compositions)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(wb_compositions)
+
+
+```
+:::
+::::::
+:::::::::::
+::::::::::::
+::::::::::::::::
+
+## Description of WB Data
+
+### List of Economies
+
+::: {#cau-wb-country .callout-caution}
+The term `country`, used interchangeably with `economy`, does not imply
+political independence but refers to any territory for which authorities
+report separate social or economic statistics.
+:::
+
+#### Columns
+
+To understand the missing data structure of the "List of Economies" one
+must know that the data consists of two different tables, separated by
+an empty line (= one `NA` for all columns):
+
+The dataset consists of 5 columns:
+
+1.  **Economy** with a list of 218 economies (= countries or areas in
+    `r glossary("M49")` language, see @sec-m49.
+2.  **Code** with the ISO-alpha3 codes for 218 countries (row 2-219) and
+    for 48 additional (regional, economical, and political) areas.
+3.  **Region** with seven different areas:
+    -   East Asia and Pacific,
+    -   Europe and Central Asia,
+    -   Latin America & the Caribbean,
+    -   Middle East and North Africa,
+    -   North America,
+    -   South Asia, and
+    -   Sub-Saharan Africa
+4.  **Income group** with four categories:
+    -   Low income,
+    -   Lower middle income,
+    -   Higher middle income, and
+    -   High income.
+5.  **Lending category** with three categories:
+    -   `r glossary("IBRD")`,
+    -   `r glossary("Blend")`, and
+    -   `r glossary("IDAx", "IDA")`
+
+#### Missing values
+
+We have now a better understanding of the missing values structure:
+
+-   The variables `Economies` and `Code` are complete. The only one
+    missing value results from the separated empty line between the two
+    datasets.
+-   The 49 missing values in the column `Region` come from the second
+    part of the database, because all the rows from 220-267 (= 48
+    rows)are empty. Adding the missing value for the whole empty line we
+    got exactly the 49 missing values.
+-   In contrast to `Region` there is one missing value in the upper
+    (first) part of the data: The reason is that `Venezuela RB` is
+    lacking an income group because it has been temporarily unclassified
+    since July 2021 pending release of revised national accounts
+    statistics. Venezuela, RB was classified as an upper-middle income
+    country until FY21 (Fiscal Year 2021), has been unclassified since
+    then due to the unavailability of data. But it is currently again
+    classified as `Upper middle income` (See the World Bank [page about
+    Venezuela,
+    RB](https://archive.doingbusiness.org/en/data/exploreeconomies/venezuela)).
+    But this actually renewed classification is not included in the
+    somewhat older dataset from the FY2023.
+-   The many missing values in the `Lending category` reflects the fact
+    that only some countries are eligible for their development
+    supporting low money lending conditions.
+
+#### Income groups
+
+The cut off limits for the income groups are: (from the "Notes" sheet)
+
+-   low income, \$1,145 or less;
+-   lower middle income, \$1,146 to \$4,515;
+-   upper middle income, \$4,516 to \$14,005; and
+-   high income, more than \$14,005.
+
+#### Lending categories
+
+The three lending categories and their relation to each other are:
+
+> `r glossary("IDAx", "IDA")` countries are those that lack the
+> financial ability to borrow from `r glossary("IBRD")`. IDA credits are
+> deeply concessional—interest-free loans and grants for programs aimed
+> at boosting economic growth and improving living conditions. IBRD
+> loans are non-concessional. `Blend` countries are eligible for IDA
+> credits because of their low per capita incomes but are also eligible
+> for IBRD because they are financially creditworthy.
+
+The effective operational cutoff for `r glossary("IDAx", "IDA")`
+eligibility is \$1,335 or less.
+
+#### Miscellanous
+
+What follows is a quote about some details of the income classifications
+for the 2023 file:
+
+> Set on 1 July 2022 remain in effect until 1 July 2023. Venezuela has
+> been temporarily unclassified since July 2021 pending release of
+> revised national accounts statistics. Argentina, which was temporarily
+> unclassified in July 2016 pending release of revised national accounts
+> statistics, was classified as upper middle income for FY17 as of 29
+> September 2016 based on alternative conversion factors. Also effective
+> 29 September 2016, Syrian Arab Republic is reclassified from IBRD
+> lending category to IDA-only. On 29 March 2017, new country codes were
+> introduced to align World Bank 3-letter codes with ISO 3-letter codes:
+> Andorra (AND), Dem. Rep. Congo (COD), Isle of Man (IMN), Kosovo (XKX),
+> Romania (ROU), Timor-Leste (TLS), and West Bank and Gaza (PSE). It is
+> to be noted that Venezuela, RB classified as an upper-middle income
+> country until FY21, has been unclassified since then due to the
+> unavailability of data.
+
+### Compositions
+
+The interpretation of the `compositions` Excel sheet is more difficult,
+not so straight forward as the `List of Economies`. The `compositions`
+sheet consists of four columns with 2084 rows.
+
+1.  `WB_Group_Code`: A three letter code similar to the ISO-alpha3 code
+    but not registered by ISO but by the World Bank.
+2.  `WB_Group_Name`: The group name assigned to a regional, economical
+    or political entity.
+3.  `WB_County_Code`: The country or area name as specified in "List of
+    Economies".
+4.  `WB_Country_Name`: The ISO-alpha3 code as specifies in "List of
+    Economies", generated and maintained by `r glossary("ISOx", "ISO")`.
+
+The table is easier to understand if we relocate `WB_County_Code` and
+`WB_Country_Name` to the first resp. second column. Then we can say that
+the `compositions` sheet displays all affiliations for a country. It is
+a combination of all the 49 rows of the second part in the "List of
+Economies" dataset. To learn about these different groups and the
+categorization criteria behind it is of special interest for my and the
+main purpose why I am writing this book.
+
+### Interim Summary {#sec-wb-interim-summary}
+
+The only missing data in the columns `Economy` and `Code` corresponds to
+the empty line #220 that separates the country codes from the regional
+codes. The missing data in the other columns stem from the different
+structure of the second part (starting with row #221) of the data, which
+consists only of the two columns 'Economy' and 'Code'.
+
+Essentially this means that we have in the `CLASS.xslx` file two
+different data sets: One for economies and the other one to explicate
+regional, economical and political grouping codes. In the Excel sheet
+`compositions` you will find an extended list of all available group
+names and their three letter codes combined with the country names and
+their three letter codes. These group names comprise different kinds of
+regional groups but also names and codes for different combination of
+country incomes and lending categories.
+
+All these groups may be of interests for analysis of different trends.
+But the regional (sub)groups of the `compositions` sheet do not add up
+to the complete number of countries (218). This is in contrast to the
+different regional groups of the WID database because all their regional
+groups (region1 = 5, region2 = 18, region4 = 10, and region5 = 8 groups)
+includes all countries (in this case: 216).
+
+## Analysis of WB Data
+
+The World Bank file `CLASS.xslx` classifies all World Bank member
+countries (189), and all other economies with populations of more than
+30,000 (29) in a coarse grid of only seven regions[^02-world-bank-1].
+For operational and analytical purposes, these economies are divided
+among different groups according to the criteria type, such as:
+
+- [gross national income (GNI) per
+capita](https://datahelpdesk.worldbank.org/knowledgebase/articles/378831-why-use-gni-per-capita-to-classify-economies-into) in 2023, calculated using the [World Bank Atlas
+method](https://datahelpdesk.worldbank.org/knowledgebase/articles/378832-what-is-the-world-bank-atlas-method).
+- lending conditions,
+- `r glossary("demographic dividend")`, etc.
+
+[^02-world-bank-1]: This information comes from the "Notes" sheet of the
+    Excel file.
+
+### Separate list of countries from "List of Economies"
+
+My first action for further analysis of the data is to isolate the first data part of the "List of Economies" and then to use the predefined group structure in this part.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-wb-separate-countries}
+: Separate country data from the Excel sheet `List of Economies` 
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### WB `economies` separated
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-economies-separated}
+: List the full data of the World Bank economies
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-economies-data
+#| results: hold
+
+
+wb_clean <-  base::readRDS("data/wb/wb_economies.rds") |> 
+    dplyr::slice(1:218) |> 
+    dplyr::mutate(`Income group` =
+           base::ifelse(base::is.na(`Income group`), "Upper middle income", `Income group`)
+           )
+
+pb_save_data_file("wb", wb_clean, "wb_clean.rds")
+
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(wb_clean)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(wb_clean)
+```
+
+
+::::
+:::::
+
+
+###### WB standard
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-clean-standard}
+: Show pre-defined grouping of Word Bank data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-show-standard-group
+
+(
+    wb_standard <- pb_class_scheme(
+            df = base::readRDS("data/wb/wb_clean.rds"),
+            sel1 = rlang::quo(`Economy`),
+            sel2 = rlang::quo(`Region`)
+            )
+)
+```
+
+***
+
+`Region` is a coarse classification scheme with only **`r length(wb_standard$x$data$N)` regions formed by `r sum(wb_standard$x$data$N)` countries**.
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+The "standard" World Bank grouping system comprises 7 groups and is therefore different to the m49 group divisions of 5 regions, 17 sub-regions and 23 intermediate regions. In contrast to the smallest UN geoscheme of 5 (resp. 6 continents with Antarctica) the WB smallest classification includes transcontinetal groupings such as `Europe and Central Asia`, `Middle East and North Africa` (`r glossary("MENA")`), `East Asia and Pacific`).
+
+
+### Differences between M49 and World Bank classification
+
+The separation shows 218 "Economies", i.e. 30 rows less than the 248 countries or areas of the `r glossary("United Nations geoscheme")` (@sec-m49-display-result-1). It is vitale to understand the differences.
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-m49-wb-diff}
+: Differences between United Nations and World Bank country classifications 
+::::::
+:::
+::::{.my-procedure-container}
+To understand the differences between the UN M49 and the World Bank classification I will aplly the following procedure
+
+**Prepare datasets for the comparison (Tab: Prepare data)**
+
+1. Load the data with more rows (UN m49: `m49_clean3.rds`) into the memory and call this tibble object `df_m49`.
+2. Select the columns `ISO-alpha3 Code`, `Country or Area`, and `UN` member state for further processing.
+3. Rename the first two columns as `Code` and `UN Country`
+4. Relocate `Code` as first column
+5. Load the World Bank data `wb_clean.rds` into the memory and call this tibble object `df_wb`.
+6. Select the columns `Economy` and `Code`.
+7. Rename column `Economy` to `WB Economy`.
+
+**Compare the two datasets**
+
+8. Join both datasets by `Code` and keep all observations of `df_m49` without a match in `df_wb` (Tab: M49 vs. DB).
+9. Join both datasets by `Code` and keep all observations of `df_wb` without a match in `df_m49` (Tab: DB vs. M49)
+
+::::
+:::::
+
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-m49-wb-diffs}
+: Differences of UN M49 and World Bank classification
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Prepare data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-prepare-data}
+: Prepare the datasets of UN M49 geoscheme with World Bank classification
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: prepare-data-m49-wb
+#| results: hold
+#| code-fold: show
+
+df_un <- base::readRDS("data/unsd/m49_clean3.rds") |>     # (1)
+    dplyr::select(c(1,2, UN)) |>                          # (2)
+    dplyr::rename(
+        Code = `ISO-alpha3 Code`,
+        `UN Country` = `Country or Area`
+        ) |>                                              # (3)
+    dplyr::relocate(Code, .before = `UN Country`)         # (4)
+
+df_wb <- base::readRDS("data/wb/wb_clean.rds") |>         # (5)
+    dplyr::select(1,2) |>                                 # (6)
+    dplyr::rename(`WB Economy` = Economy)                 # (7)                                       
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+
+###### M49 vs. WB
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-m49-vs-wb}
+: Show M49 rows that are not included in the World Bank classification data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: m49-vs-wb
+
+(
+    m49_wb_diff <- dplyr::anti_join(                    # (8)
+        df_un, df_wb, dplyr::join_by(Code == Code)
+        ) |> 
+        DT::datatable(option = list( pageLength = 50))
+)
+
+```
+
+
+
+::::
+:::::
+
+###### WB vs. M49
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-vs-m49}
+: Show World Bank economy rows that are not included in the UN M49 classification data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-vs-m49
+
+(
+    wb_m49_diff <- dplyr::anti_join(
+        df_wb, df_un, dplyr::join_by(Code == Code)      # (9)
+        ) 
+)  
+```
+
+
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+### Interim Summary
+
+The M49 geoscheme of the United Nations is the more comprehensive classification system. It includes 33 areas more than the WB classification. But the difference between the two system is 248 - 218 = 30 and not 33 countries, because the World Bank classification contains three geographical areas that are not part of the m49 system:
+
+- Channel Islands
+- Taiwan and
+- Kosovo
+
+**Channel Islands**
+
+The biggest three of the Channels Island (Jersey, Guernsey and Sark) are already areas includied in the UN m49 scheme, although Sark has not (yet?) an offical ISO code.
+
+**Taiwan (TWN)**
+
+The status of Taiwan is a disputed one:
+
+> China considers Taiwan a part of its territory and rejects any notion of Taiwanese independence. As one of the world's largest and most influential countries, China wields significant political and economic power, which can influence other nations' decisions regarding Taiwan's status. Many countries have chosen to adhere to China's "One China" policy, which recognizes Taiwan as a part of China rather than an independent country. ([WorldAtlas](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html#h_67893363119851681224132690))
+
+But for analytical reasons it could be interesting to analyze the well-advanced economy of Taiwan separately. I will therefore include Taiwan in my working country and area classification system.
+
+**Kosovo (XKX)**
+
+> Recognizing Kosovo as an independent country has been a contentious issue in international politics for many years. While the United States has recognized Kosovo as a sovereign state since it declared independence from Serbia in 2008, other countries and international bodies do not. ([WorldAtlas](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html#h_20077683018261681224123451))
+
+Here applies the same reason for inclusion of Taiwan in my my classification system: It may be interesting to analyse this region/country separately from other countries of this region.
+
+## Combining M49 and WB
+
+As an interim conclusion (without analysis the second Excel sheet `compositions` of the World Bank classification system) I will combine the World Bank data (excluding Channel Islands) data with the UN M49 geoscheme.
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-wb-combine-m49}
+: Combine M49 with the World Bank classification
+::::::
+:::
+::::{.my-procedure-container}
+
+**Display structure of combinded data (Tab: "Structure")
+
+1. Load the cleaned version of the World Bank classification ("data/wb/wb_clean.rds")
+2. Remove the `Economy` row with the Value of "Channel Islands".
+3. Rename the column `Region` to `WB Region` to remind where this regional groupings comes from. 
+4. Replace the NA's values of `Lending categoy` with "NLC" (= No Lending Category) to distinguish it from those rows of `Lending category` that have `NA`s because of a missing `Country or Area` (resp. `Economy`).
+5. Saves this new cleaned World Bank dataset as "data/wb/wb_clean2.rds".
+6. Load the latest cleaned version of the m49 data ("data/unsd/m49_clean3.rds") into memory
+7. Join the UN m49 with the World Bank dataset
+8. Remove the now redundant `Economy` column.
+9. Save the new dataset as "data/unsd/m49_ext.rds" ("ext" stands for extended)
+9. Display the structure of the new dataset `m49_ext`.
+10. Display the dataset with `DT::datatable()` for explorations and further analysis. (Tab: "Data Values")
+
+::::
+:::::
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-wb-combine-m49}
+: Combine and show the structure and data values of the integrated dataset
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Structure
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-combine-m49-structure}
+: Show structure of the combine M49 and World Bank classification
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-combine-m49
+#| results: hold
+
+wb_clean2 <- base::readRDS("data/wb/wb_clean.rds") |> 
+    dplyr::filter(Economy != "Channel Islands") |> 
+    dplyr::rename(`WB Region` = Region) |> 
+    dplyr::mutate(`Lending category` =
+        base::ifelse(base::is.na(`Lending category`), 
+                     "NLC", `Lending category`)
+        )
+
+pb_save_data_file("wb", wb_clean2, "wb_clean2.rds")
+
+m49_clean3 <- base::readRDS("data/unsd/m49_clean3.rds")
+
+m49_ext <- dplyr::full_join(
+    m49_clean3, wb_clean2, dplyr::join_by(`ISO-alpha3 Code` == Code)
+) |> 
+    dplyr::select(-Economy)
+
+pb_save_data_file("unsd", m49_ext, "m49_ext.rds")
+
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(m49_ext)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(m49_ext)
+```
+
+
+
+::::
+:::::
+
+
+
+
+###### Data Values
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-combine-m49-data-values}
+: Show data values of the combined M49 and World Bank classification
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-combine-m49-data-values
+
+(
+    m49_ext <- base::readRDS("data/unsd/m49_ext.rds") |> 
+        DT::datatable()
+)
+```
+
+
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+***
+
+
