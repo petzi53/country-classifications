@@ -176,6 +176,10 @@ dplyr::glimpse(m49_raw)
 :::
 ::::::
 
+## Special cases
+
+### Missing values
+
 The file has 15 columns as you can also see online from the [Overview
 page](https://unstats.un.org/unsd/methodology/m49/overview/).
 
@@ -186,25 +190,36 @@ this category. Recoding these three columns with 1 and 0 (1 = yes,
 belongs to this category, 0 = no, does not belong to this category) will
 reduce most of their missing values.
 
+### Antarctica
+
 One missing value in the regional categories (Region, Sub-Region and
 Intermediate Region) is related to Antarctica which is not seen by the
 M49 scheme as a separated region. It has therefore no regional codes and
 names with the exception of the overall comprising global region. But it
 has M49 as well ISO-alpha codes.
 
+### Channel Island Sark
+
 One of the missing values for ISO-alpha2 and ISO-alpha3 is related to
 Sark, which is "recognized by the United Nations Statistics Division
 (UNSD) as a separate territory" but was not accepted by ISO now for more
-than 20 years [@mccarthy-2020]. Recently a new application (see
-[PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf))
-will change that but currently [^01-united-nations-3] is still waiting
-for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
+than 20 years [@mccarthy-2020]. 2020 a new 54-page submission for an ISO code (see
+[PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf)) was applied to ISO but it seems still under consideration, because currently [^01-united-nations-3] Sark has no [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
+
+For further processing of the M49 dataset, however, it is crucial to have a complete list of ISO Codes because these are the columns where the joining of two dataset will be linked. There exist two possibilities to get a complete list for all UN entries for the ISO codes:
+
+1. Remove the Sark entry from the dataset.
+2. Add ISO-alpha2 and ISO-alpha3 for Sark.
+
+The second possibility is not so out of the hand, because it is possible that Sark will succeed finally with its application. In that case it is highly likely that it will get "CQ" for ISO-alpha2 and "SCQ" for the ISO-alpha3 Code. (The other possibility "sk" is already by Slovakia and Sercq is the original Norman dialect spelling of the island. See [After 20-year battle, Channel island Sark finally earns the right to exist on the internet with its own top-level domain](https://www.theregister.com/2020/03/23/sark_cctld_iso/) [@mccarthy-2020]).
 
 [^01-united-nations-3]: Even if United Nations and ISO both list 249
     entries (including Antarctica) there is a small difference between
     ISO 3166 codes and the M49 geoscheme of the UN: The UN lists Sark
     (without ISO codes), whereas the list of ISO includes "Taiwan
-    (Province of China)" with the ISO codes "TW2 and "TWN".
+    (Province of China)" with the ISO codes "TW" and "TWN".
+    
+### Namibia
 
 The other missing value for ISO-alpha2 codes belongs to Namibia because
 its abbreviation `NA` is interpreted by R as a missing value!
@@ -221,18 +236,21 @@ its abbreviation `NA` is interpreted by R as a missing value!
 ::::
 
 ::: my-procedure-container
-1.  Remove the global codes and global names because they a redundant:
+
+1.  Load the original M49 dataset ("m49_raw.rds")
+2.  Remove the global codes and global names because they a redundant:
     All rows have global code "001" ("World").
-2.  Shorten long names to their abbreviation ("LCD", "LLCD" and "SIDS").
-3.  Remove row "Antarctica" because it is not seen as separate country.
-4.  Replace `NA` in the column ISO-alpha2 Code" of Namibia with the
+3.  Shorten long names to their abbreviation ("LCD", "LLCD" and "SIDS").
+4.  Remove row "Antarctica" because it is not seen as separate country.
+5.  Add ISO Codes "CQ" and "SCQ" to `Country or Area` of Sark.
+6.  Replace `NA` in the column ISO-alpha2 Code" of Namibia with the
     string "NA".
-5.  Recode the columns `r glossary("LDC")`, `r glossary("LLDC")` and
+7.  Recode the columns `r glossary("LDC")`, `r glossary("LLDC")` and
     `r glossary("SIDS")` with 0 and 1.
-6.  Relocate columns `ISO-alpha3 CODE` and `Country or Area` to the
+8.  Relocate columns `ISO-alpha3 CODE` and `Country or Area` to the
     first two columns because these two columns are always relevant for
     the later groupings and joining with groupings from other sources.
-7.  Sort the data alphabetically by `Country or Area`.
+9.  Sort the data alphabetically by `Country or Area`.
 :::
 ::::::
 
@@ -261,20 +279,31 @@ m49_cols = c(
 
 
 ## clean data ###############################
-m49_clean <- base::readRDS("data/unsd/m49_raw.rds") |> 
-  dplyr::select(-(1:2)) |> # (1)
-  dplyr::rename(tidyselect::all_of(m49_cols)) |> # (2) 
-  dplyr::filter(`Country or Area` != "Antarctica") |> # (3)
-  dplyr::mutate(`ISO-alpha2 Code` = 
-      base::ifelse(`Country or Area` == "Namibia", "NA", `ISO-alpha2 Code`)) |> # (4)
+m49_clean <- base::readRDS("data/unsd/m49_raw.rds") |>      # (1)
+  dplyr::select(-(1:2)) |>                                  # (2)
+  dplyr::rename(tidyselect::all_of(m49_cols)) |>            # (3) 
+  dplyr::filter(`Country or Area` != "Antarctica") |>       # (4)
+  dplyr::mutate(
+    `ISO-alpha2 Code` =
+        base::ifelse(`Country or Area` == "Sark", 
+                     "CQ",  `ISO-alpha2 Code`),             # (5a)
+    `ISO-alpha3 Code` =
+        base::ifelse(`Country or Area` == "Sark", 
+                     "SCQ",  `ISO-alpha3 Code`),            # (5b)
+    `ISO-alpha2 Code` = 
+        base::ifelse(`Country or Area` == "Namibia", 
+                     "NA", `ISO-alpha2 Code`)               # (6)
+    ) |>
   dplyr::relocate(
       ## any_of() does not understand object names (??)
-      tidyselect::any_of(c("ISO-alpha3 Code", "Country or Area")), .before = `Region Code`) |> # (5)
+      tidyselect::any_of(
+        c("ISO-alpha3 Code", "Country or Area")), 
+            .before = `Region Code`) |>                     # (7)
   # .x = anonymous function; "x" = value in cols of m40_clean
   dplyr::mutate(dplyr::across(
-    LDC:SIDS, ~ dplyr::if_else(.x == "x", "1", "999", "0") 
-    )) |> # (6)
-  dplyr::arrange(`Country or Area`) # (7)
+    LDC:SIDS, ~ dplyr::if_else(.x == "x", 1, 999, 0)  # (8)
+    )) |> 
+  dplyr::arrange(`Country or Area`)                         # (9)
 
 ## save new tibble ##########
 pb_save_data_file(
@@ -628,7 +657,7 @@ To get only the 193 member states and the two non-member observer states
 
 un_countries <- readr::read_csv("data/unsd/un_countries.csv",
                                 show_col_types = FALSE) |>       # (3)
-  dplyr::mutate(UN = "1")                                        # (4)
+  dplyr::mutate(UN = 1)                                        # (4)
   
 pb_save_data_file("unsd", un_countries, "un_countries.rds")      # (5)
 
@@ -639,7 +668,7 @@ m49_clean3 <- dplyr::full_join(
   x, y, dplyr::join_by(`ISO-alpha3 Code` == Code)
   ) |>                                                           # (7)
   dplyr::mutate(UN =
-        base::ifelse(base::is.na(UN), "0", UN)
+        base::ifelse(base::is.na(UN), 0, UN)
         ) |>                                                     # (8)
   dplyr::select(-Country)                                        # (9)
 
@@ -665,7 +694,7 @@ non-member observers)
 #| label: list-un-members
 
 base::readRDS("data/unsd/m49_clean3.rds") |> 
-  dplyr::filter(UN == "1") |> 
+  dplyr::filter(UN == 1) |> 
   dplyr::select(1,2,4,8) |> 
   DT::datatable()
 ```
@@ -687,7 +716,7 @@ non-member observers)
 #| label: list-non-un-members
 
 base::readRDS("data/unsd/m49_clean3.rds") |> 
-  dplyr::filter(UN == "0") |> 
+  dplyr::filter(UN == 0) |> 
   dplyr::select(1,2,4,8) |> 
   DT::datatable()
 ```
@@ -730,5 +759,5 @@ About the three grouping we can say (always not including Antarctica):
 -   **Intermediate region**: It consists of 22 groups and is for
     statistical purposes the most detailed **regional** classification.
     
-Additonally there are with `r glossary("LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` three other divisions, driven not by regional reasons but by geographical common features. As we will see in the other chapters there are --- besides of the UN M49 geoscheme --- other approaches for a consistent country classification.
+Additionally there are with `r glossary("LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` three other divisions, driven not by regional reasons but by geographical common features. As we will see in the other chapters there are --- besides of the UN M49 geoscheme --- other approaches for a consistent country classification.
 

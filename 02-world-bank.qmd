@@ -439,6 +439,7 @@ dplyr::glimpse(wb_clean)
 )
 ```
 
+
 ***
 
 `Region` is a coarse classification scheme with only **`r length(wb_standard$x$data$N)` regions formed by `r sum(wb_standard$x$data$N)` countries**.
@@ -600,9 +601,11 @@ The M49 geoscheme of the United Nations is the more comprehensive classification
 
 **Channel Islands**
 
-The biggest three of the Channels Island (Jersey, Guernsey and Sark) are already areas includied in the UN m49 scheme, although Sark has not (yet?) an offical ISO code.
+In the World Bank classification system is "Channel Islands" sorted under `Economy` (= equivalent to `Region or Area` in the M49 taxonomy). But in the original UN notation "Channel Island" is an "Intermediate Region Name".
 
-**Taiwan (TWN)**
+The biggest three of the Channels Island (Jersey, Guernsey and Sark) are already areas included in the UN M49 scheme, although Sark has not (yet?) an official ISO code. I will therefore remove the `Economy`row for "Channel Islands" from the World Bank data because it is also included in the M49 listing.
+
+**Taiwan (TN, TWN)**
 
 The status of Taiwan is a disputed one:
 
@@ -610,7 +613,7 @@ The status of Taiwan is a disputed one:
 
 But for analytical reasons it could be interesting to analyze the well-advanced economy of Taiwan separately. I will therefore include Taiwan in my working country and area classification system.
 
-**Kosovo (XKX)**
+**Kosovo (XK, XKX)**
 
 > Recognizing Kosovo as an independent country has been a contentious issue in international politics for many years. While the United States has recognized Kosovo as a sovereign state since it declared independence from Serbia in 2008, other countries and international bodies do not. ([WorldAtlas](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html#h_20077683018261681224123451))
 
@@ -628,8 +631,9 @@ As an interim conclusion (without analysis the second Excel sheet `compositions`
 :::
 ::::{.my-procedure-container}
 
-**Display structure of combinded data (Tab: "Structure")
+**Combine M49 and World Bank data and display "Structure" and "Data Values"**
 
+1. Create directory "data/meta" for data combined from different chapters.
 1. Load the cleaned version of the World Bank classification ("data/wb/wb_clean.rds")
 2. Remove the `Economy` row with the Value of "Channel Islands".
 3. Rename the column `Region` to `WB Region` to remind where this regional groupings comes from. 
@@ -638,9 +642,9 @@ As an interim conclusion (without analysis the second Excel sheet `compositions`
 6. Load the latest cleaned version of the m49 data ("data/unsd/m49_clean3.rds") into memory
 7. Join the UN m49 with the World Bank dataset
 8. Remove the now redundant `Economy` column.
-9. Save the new dataset as "data/unsd/m49_ext.rds" ("ext" stands for extended)
-9. Display the structure of the new dataset `m49_ext`.
-10. Display the dataset with `DT::datatable()` for explorations and further analysis. (Tab: "Data Values")
+9. Save the new dataset as "data/meta/m49_ext.rds" ("ext" stands for extended)
+10. Display the structure of the new dataset `m49_ext`.
+11. Display the dataset with `DT::datatable()` for explorations and further analysis. (Tab: "Data Values")
 
 ::::
 :::::
@@ -672,6 +676,8 @@ As an interim conclusion (without analysis the second Excel sheet `compositions`
 #| label: wb-combine-m49
 #| results: hold
 
+pb_create_folder("data/meta")
+
 wb_clean2 <- base::readRDS("data/wb/wb_clean.rds") |> 
     dplyr::filter(Economy != "Channel Islands") |> 
     dplyr::rename(`WB Region` = Region) |> 
@@ -687,9 +693,27 @@ m49_clean3 <- base::readRDS("data/unsd/m49_clean3.rds")
 m49_ext <- dplyr::full_join(
     m49_clean3, wb_clean2, dplyr::join_by(`ISO-alpha3 Code` == Code)
 ) |> 
-    dplyr::select(-Economy)
+    dplyr::select(-Economy) |> 
+    dplyr::mutate(
+      `Country or Area` =
+          base::ifelse(`ISO-alpha3 Code` == "XKX", 
+                     "Kosovo", `Country or Area`),
+      `ISO-alpha2 Code`  =
+          base::ifelse(`ISO-alpha3 Code` == "XKX", 
+                       "XK", `ISO-alpha2 Code`)
+        
+        ) |> 
+    dplyr::mutate(
+      `Country or Area` =
+          base::ifelse(`ISO-alpha3 Code` == "TWN", 
+                     "Taiwan, Province of China", `Country or Area`),
+      `ISO-alpha2 Code`  =  
+          base::ifelse(`ISO-alpha3 Code` == "TWN", 
+                     "TN", `ISO-alpha2 Code`),
+        ) |> 
+    dplyr::arrange(`Country or Area`)
 
-pb_save_data_file("unsd", m49_ext, "m49_ext.rds")
+pb_save_data_file("meta", m49_ext, "m49_ext.rds")
 
 glue::glue("******************* Using skimr::skim() ***************************")
 skimr::skim(m49_ext)
@@ -719,7 +743,7 @@ dplyr::glimpse(m49_ext)
 #| label: wb-combine-m49-data-values
 
 (
-    m49_ext <- base::readRDS("data/unsd/m49_ext.rds") |> 
+    m49_ext <- base::readRDS("data/meta/m49_ext.rds") |> 
         DT::datatable()
 )
 ```
@@ -734,6 +758,380 @@ dplyr::glimpse(m49_ext)
 ::::
 :::::
 
+## Analysing `compositions` data
+
+### Multiple Group Membership
+
+Looking again at the `compositions` dataset (Tab: WB `compositions`" of @exm-wb-inspect) we have to realize that the many grouping criteria are overlapping and therefore multiplicating the relations to specific countries. Every country belongs at least to three different groups. The leader in this respect is the [Union of the Comoros](https://www.britannica.com/place/Comoros), an archipelagic country made up of three islands in Southeastern Africa, located at the northern end of the Mozambique Channel in the Indian Ocean. Comoros is according to the World Bank classification member of 18 different groups. 
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-multiple-group-membership}
+: Multiple group membership according to the different WB criteria
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-multiple-group-membership
+#| results: hold
+
+wb_compositions <- base::readRDS("data/wb/wb_compositions.rds") 
+
+glue::glue("********* List countries with the most gropu memberships **********")
+wb_compositions |> 
+    dplyr::group_by(WB_Country_Name) |> 
+    dplyr::summarize(n = dplyr::n()) |> 
+    dplyr::arrange(dplyr::desc(n)) |> 
+    utils::head()
+
+
+glue::glue("")
+glue::glue("************** Display group memebership of Comoros **************")
+wb_compositions |> 
+    dplyr::filter(WB_Country_Name == "Comoros") |> 
+    print(n = 20)
+```
+
+
+::::
+:::::
+
+### More African Groupings
+
+A second observation is that the countries classified in "Sub-Saharan Africa" are also members of "African Western and Central" or "Africa Eastern & Southern". We have therefore a second regional group in addition to the already displayed "WB Standard" group (Tab: "WB Standard" in @exm-wb-separate-countries). In addition to the seven groups of "WB Standard" we have another classification with eight different regional areas.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-another-regional-grouping}
+: Another regional grouping of the WB classification: `WB Standard2`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-grouping-standard2
+#| results: hold
+
+wb_compositions <- base::readRDS("data/wb/wb_compositions.rds") 
+
+wb_grouping2 <- wb_compositions |> 
+  dplyr::filter(
+      WB_Group_Code == "AFE" |
+      WB_Group_Code == "AFW" |
+      WB_Group_Code == "EAS" |
+      WB_Group_Code == "ECS" |
+      WB_Group_Code == "LCN" |
+      WB_Group_Code == "MEA" |
+      WB_Group_Code == "NAC" |
+      WB_Group_Code == "SAS" 
+  )
+
+pb_save_data_file("wb", wb_grouping2, "wb_grouping2.rds")
+
+(
+    wb_standard2 <- pb_class_scheme(
+            df = wb_grouping2,
+            sel1 = rlang::quo(WB_Country_Name),
+            sel2 = rlang::quo(WB_Group_Name)
+            )
+)
+```
+
 ***
 
+`WB_Group_Name` is similar to the classification scheme "WB Standard", but instead of only **`r length(wb_standard$x$data$N)` regions** it has now with **`r length(wb_standard2$x$data$N)` regions** one region more but with **`r sum(wb_standard2$x$data$N)`** the same number of countries.
 
+The difference is caused by the division of the meta-region "Sub-Saharan Africa" into "Africa Eastern and Southern" and "Africa Western and Central". All the other groupings are the same as in the Tab "WB Standard" of @exm-wb-separate-countries. 
+::::
+:::::
+
+### Integrating 2nd regional grouping
+
+I will add this second regional grouping of the World Bank classification with the name of `WB Region2` into my combined meta dataset "data/meta/m49_ext.rds" where I collect all different groupings criteria.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-integrate-region2}
+: Integrating the second regional World Bank grouping into the extended M49 dataset
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-integrate-region2
+#| results: hold
+
+m49_ext <- base::readRDS("data/meta/m49_ext.rds")
+wb_grouping2 <- base::readRDS("data/wb/wb_grouping2.rds") |> 
+  dplyr::filter(WB_Country_Name != "Channel Islands")
+  
+
+m49_ext2 <- dplyr::full_join(
+  m49_ext, wb_grouping2, 
+  by = dplyr::join_by(`ISO-alpha3 Code` == WB_Country_Code)
+  ) |> 
+  dplyr::select(-WB_Country_Name) |> 
+  dplyr::rename(`WB Region2` = WB_Group_Name) |> 
+  dplyr::relocate(WB_Group_Code, .before = `WB Region`) |> 
+  dplyr::relocate(`WB Region2`, .after = `WB Region`)
+
+pb_save_data_file("meta", m49_ext2, "m49_ext2.rds")
+
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(m49_ext2)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(m49_ext2)
+```
+
+***
+
+Checking the missing values: UN M49 - WB = 250 (incl. Sark) - 218 - 1 (Channel Islands) + 2 (Kosovo and Taiwan already from World Bank dataset integrated into UN M49 extended.) = 33 missing values.
+::::
+:::::
+
+
+### Integrating simple groups
+
+My supplements to the UN M49 changes the original file. To differentiate it from the UN M49 source I will call it **M49 extended**.
+
+With the next step I will add simple groups from the World Bank classification to the M49 extended dataset. Under "simple" I understand groups with only two values: Yes and No or in my case 1 and 0.
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-create-simple-groups}
+: Integrating simple groups into the M49 extended dataset
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-simple-groups
+#| results: hold
+
+## Function for creating simple groups #########################
+pb_add_simple_group <- function(df_comp, df_ext, group_name){
+  df_comp <- df_comp |> 
+    dplyr::filter(WB_Group_Name == !!group_name) |>
+    dplyr::select(2,3) |> 
+    dplyr::rename(!!group_name := WB_Group_Name) |> 
+    dplyr::mutate(!!group_name := 1)
+  
+  dplyr::full_join(
+      df_ext, df_comp,
+      by = dplyr::join_by(`ISO-alpha3 Code` == WB_Country_Code)
+    )
+}
+
+##  Calling function to create simple groups   ################
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  base::readRDS("data/meta/m49_ext2.rds"),
+  "Arab World"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Euro area"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "OECD members"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "European Union"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Small states (SST)"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Central Europe and the Baltics"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Fragile and conflict affected situations"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Heavily indebted poor countries (HIPC)"
+  )
+
+## identical with M49 `LCD` column ###################
+## Least developed countries: UN classification 
+
+# m49_ext3 <- pb_add_simple_group(
+#   base::readRDS("data/wb/wb_compositions.rds"),
+#   m49_ext3,
+#   "Least developed countries: UN classification"
+#   )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "IBRD only"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "IDA & IBRD total"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "IDA blend"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "IDA only"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "IDA total"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Middle income"
+  )
+
+m49_ext3 <- pb_add_simple_group(
+  base::readRDS("data/wb/wb_compositions.rds"),
+  m49_ext3,
+  "Low & middle income"
+  )
+
+m49_ext3 <- m49_ext3 |>
+  dplyr::mutate(dplyr::across(
+    `Arab World`:`Low & middle income`, ~ tidyr::replace_na(., 0)))
+
+  
+pb_save_data_file("meta", m49_ext3, "m49_ext3.rds")
+
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(m49_ext3)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(m49_ext3)
+```
+
+
+::::
+:::::
+
+### Integrating composite groups
+
+Under "composite" groups I understand columns that have more than two values. In contrast to the simple groups where the column types are numerical, the composite groups are character columns. "0" means that the criteria for this column is not applicable.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-create-composite-groups}
+: Integrating composite groups into the M49 extended dataset
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-composite-groups
+#| results: hold
+
+## Preparing composition data #################
+## for unique string selection
+wb_compositions2 <- base::readRDS("data/wb/wb_compositions.rds") |> 
+    dplyr::filter(
+      WB_Group_Name != "IDA & IBRD",
+      WB_Group_Name != "IDA & IBRD total") |> 
+    dplyr::filter(
+      WB_Group_Name != "High income",
+      WB_Group_Name != "Low income",
+      WB_Group_Name != "Upper middle income",
+      WB_Group_Name != "Lower middle income"
+      )
+
+pb_save_data_file("wb", wb_compositions2, "wb_compositions2.rds")
+
+
+## functions for composite groups
+pb_new_composite_group <- function(df_ext, group_name, search_string){
+  df_comp2 <- base::readRDS("data/wb/wb_compositions2.rds")
+  df_comp2 <- df_comp2 |> 
+    dplyr::filter(stringr::str_detect(WB_Group_Name, !!search_string)) |>
+    dplyr::rename(!!group_name := WB_Group_Name) |> 
+    dplyr::select(2,3) 
+  
+  dplyr::full_join(
+    df_ext, df_comp2,
+    by = dplyr::join_by(`ISO-alpha3 Code` == WB_Country_Code)
+    )
+}
+
+
+## create composite groups ##################
+
+m49_ext3 <- base::readRDS("data/meta/m49_ext3.rds")
+
+m49_ext4 <- pb_new_composite_group(
+  m49_ext3,
+  "Small States", 
+  "small states"
+  )
+
+m49_ext4 <- pb_new_composite_group(
+  m49_ext4,
+  "Excluding High Income", 
+  "(excluding high income)"
+  )
+
+m49_ext4 <- pb_new_composite_group(
+  m49_ext4,
+  "Demographic Divididend", 
+  "demographic dividend"
+  )
+
+m49_ext4 <- pb_new_composite_group(
+  m49_ext4,
+  "IDA & IBRD", 
+  "(IDA & IBRD)"
+  )
+
+m49_ext4 <- m49_ext4 |>
+  dplyr::mutate(dplyr::across(
+    `Small States`:`IDA & IBRD`, ~ tidyr::replace_na(., "0")))
+
+
+pb_save_data_file("meta", m49_ext4, "m49_ext4.rds")
+
+
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(m49_ext4)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(m49_ext4)
+
+```
+
+
+
+::::
+:::::
